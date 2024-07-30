@@ -44,16 +44,13 @@ public class ProjectServiceImpl implements ProjectService {
     public ProjectResponse createProjectByAdmin(ProjectRequest request) {
         Project projectExist = repository.findByNameAndCustomerName(request);
         if (projectExist != null) {
-           throw new NotFoundException(false, 404, "Project exists");
+            throw new NotFoundException(false, 404, "Project exists");
         }
         Customer customer = customerRepository.findByIdAndIsDeletedFalse(request.getCustomerId());
-        if(customer == null) {
+        if (customer == null) {
             throw new NotFoundException(false, 404, "Customer not exists");
         }
-        Project project = new Project().setActive(true)
-                .setName(request.getName())
-                .setCustomer(customer)
-                .setCreated(new Date());
+        Project project = new Project().setActive(true).setName(request.getName()).setCustomer(customer).setCreated(new Date());
         repository.save(project);
         return new ProjectResponse(true, 200, "project was created successfully");
     }
@@ -61,13 +58,9 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public ProjectResponse getProjectListByAdmin(Pageable pageable) {
         Page<Project> projectPage = repository.findByIsActiveTrue(pageable);
-        List<ProjectDTO> dtos = projectPage.getContent()
-                .stream()
-                .map(ProjectMapper.MAPPER::toDTO)
-                .collect(Collectors.toList());
+        List<ProjectDTO> dtos = projectPage.getContent().stream().map(ProjectMapper.MAPPER::toDTO).collect(Collectors.toList());
 
-        return new ProjectResponse(true, 200).setProjectDTOList(dtos)
-                .setPageDto(PageDto.populatePageDto(projectPage));
+        return new ProjectResponse(true, 200).setProjectDTOList(dtos).setPageDto(PageDto.populatePageDto(projectPage));
     }
 
     @Override
@@ -77,14 +70,16 @@ public class ProjectServiceImpl implements ProjectService {
         if (project == null) {
             throw new NotFoundException(false, 404, "Project not exists");
         }
-        ProjectMapper.MAPPER.updateProjectFromRequest(request, project);
-        if(request.getCustomerId() != null) {
+
+        if (request.getCustomerId() != null) {
             Customer customer = customerRepository.findByIdAndIsDeletedFalse(request.getCustomerId());
-            if(customer == null) {
+            if (customer == null) {
                 throw new NotFoundException(false, 404, "customer not found");
             }
             project.setCustomer(customer);
         }
+
+        ProjectMapper.MAPPER.updateProjectFromRequest(request, project);
 
         return new ProjectResponse(true, 200, "update project information successfully");
     }
@@ -103,25 +98,34 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public ProjectResponse addMemberToProject(ProjectRequest request) {
         Project project = repository.findByIdAndIsActiveTrue(request.getId());
-        if(project == null) {
+        if (project == null) {
             throw new NotFoundException(false, 404, "Project not found");
         }
-        UserProjects userProjectsCheck = userProjectsRepository.findByUserIdAndProjectId(request.getMemberId(),
-                request.getId(), request.getPosition().trim());
-        if(userProjectsCheck != null) {
-            throw new RequetFailException(false, 400, "user was in project");
-        }
-        Optional<User> user = Optional.ofNullable(userRepository.findByIdAndIsDeletedFalse(request.getMemberId())
+
+        Optional<User> user = Optional.ofNullable(userRepository.findByIdAndIsDeletedFalse(
+                request.getMemberId())
                 .orElseThrow(() -> new NotFoundException(false, 404, "user not exists")));
+
         Position position = positionRepository.findByPosition(request.getPosition());
         if (position == null) {
             throw new NotFoundException(false, 404, "position not exists");
         }
+
+        UserProjects userProjectsCheck = userProjectsRepository.findByUserIdAndProjectId(
+                request.getMemberId(),
+                request.getId(),
+                request.getPosition().trim());
+        if (userProjectsCheck != null) {
+            throw new RequetFailException(false, 400, "user was in project");
+        }
+
         UserProjects userProjects = new UserProjects()
                 .setProject(project)
                 .setUser(user.get())
                 .setPosition(position);
+
         userProjectsRepository.save(userProjects);
+
         return new ProjectResponse(true, 200, "add member to project successfully");
     }
 }

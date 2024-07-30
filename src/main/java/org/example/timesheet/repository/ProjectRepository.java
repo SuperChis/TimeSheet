@@ -19,10 +19,10 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
             "           AND p.isActive = true")
     Project findByNameAndCustomerName(@Param("request") ProjectRequest request);
 
-//    @Query(value = "SELECT p" +
-//            "       FROM Project p " +
-//            "       WHERE p.id = :id " +
-//            "           AND p.isActive = true")
+    @Query(value = "SELECT p" +
+            "       FROM Project p " +
+            "       WHERE p.id = :id " +
+            "           AND p.isActive = true")
     Project findByIdAndIsActiveTrue(Long id);
 
 

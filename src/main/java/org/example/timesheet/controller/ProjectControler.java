@@ -25,7 +25,7 @@ public class ProjectControler {
     }
 
     @PutMapping("/admin/update")
-    public ProjectResponse editProjectInforByAdmin(ProjectRequest request){
+    public ProjectResponse editProjectInforByAdmin(@RequestBody ProjectRequest request){
         return service.editProjectInforByAdmin(request);
     }
 
@@ -34,8 +34,8 @@ public class ProjectControler {
         return service.deactiveProjecByAdmin(id);
     }
 
-    @PostMapping("/admin/project/add-member")
-    public ProjectResponse addMemberToProject(ProjectRequest request) {
+    @PostMapping("/admin/add-member")
+    public ProjectResponse addMemberToProject(@RequestBody ProjectRequest request) {
         return service.addMemberToProject(request);
     }
 
