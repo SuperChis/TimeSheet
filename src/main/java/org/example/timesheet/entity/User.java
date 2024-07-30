@@ -36,6 +36,10 @@ public class User {
 
     private String sex;
 
+    private String startTimeWorking;
+
+    private String endTimeWorking;
+
     private boolean isDeleted;
 
     @ManyToMany(cascade = CascadeType.ALL)

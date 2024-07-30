@@ -175,6 +175,20 @@ public class UserServiceImpl implements UserService {
         return new UserResponse(true, 200).setUserDTOList(dto);
     }
 
+    @Override
+    public UserResponse updateWorkingTimeByAdmin(Long id, UserRequest request, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            throw new RequetFailException(false, 400, "Fields in request must be not null or empty");
+        }
+        Optional<User> user = repository.findById(id);
+        if (user.isEmpty()) {
+            throw new NotFoundException(false, 404, "user not exists");
+        }
+        user.get().setStartTimeWorking(request.getStartTimeWorking());
+        user.get().setEndTimeWorking(request.getEndTimeWorking());
+        return new UserResponse(true, 200, "update user succesfully!!!");
+    }
+
     private String getErrMsg(BindingResult bindingResult) {
         Map<String, String> errorMap = new HashMap<>();
         bindingResult.getFieldErrors().forEach(error -> errorMap.put(error.getField(), error.getDefaultMessage()));

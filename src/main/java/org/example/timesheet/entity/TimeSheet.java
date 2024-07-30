@@ -13,6 +13,8 @@ public class TimeSheet {
 
     private Long hour;
 
+    private String note;
+
     private EWorkingType type;
 
     private boolean isApproved;

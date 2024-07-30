@@ -34,4 +34,5 @@ public interface UserService {
 
     UserResponse search(String search);
 
+    UserResponse updateWorkingTimeByAdmin(Long id, UserRequest request, BindingResult bindingResult);
 }

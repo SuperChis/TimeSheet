@@ -3,10 +3,14 @@ package org.example.timesheet.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
+
+import java.util.Date;
 
 @Entity
 @Data
 @NoArgsConstructor
+@Accessors(chain = true)
 public class Project {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,7 +22,12 @@ public class Project {
     @JoinColumn(name = "customer_id")
     private Customer customer;
 
-    private boolean isActive;
+    private Date created;
 
+    private Date timeStart;
+
+    private Date timeEnd;
+
+    private boolean isActive;
 
 }

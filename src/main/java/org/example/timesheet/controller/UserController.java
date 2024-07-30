@@ -1,12 +1,16 @@
 package org.example.timesheet.controller;
 
+import jakarta.validation.Valid;
 import org.example.timesheet.base.BaseResponse;
 import org.example.timesheet.dto.auth.ResetPasswordRequest;
+import org.example.timesheet.dto.user.UserRequest;
 import org.example.timesheet.dto.user.UserResponse;
 import org.example.timesheet.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Repository;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -43,4 +47,10 @@ public class UserController {
         return service.search(search);
     }
 
+    @PutMapping("/user/update-woring-time/{id}")
+    public UserResponse updateWorkingTimeByAdmin(@PathVariable("id") Long id,
+                                                 @RequestBody @Valid UserRequest request,
+                                                 BindingResult bindingResult){
+        return service.updateWorkingTimeByAdmin(id, request, bindingResult);
+    }
 }
