@@ -22,6 +22,15 @@ public class JwtUtils {
     @Value("${timesheet.app.jwtExpirationMs}")
     private Long jwtExpirationMs;
 
+    public String generateTokenFromUsername(String username) {
+        return Jwts.builder()
+                .setSubject(username)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
+                .signWith(SignatureAlgorithm.HS256, jwtSecret)
+                .compact();
+    }
+
     public String generateJwtToken(Authentication authentication){
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         return Jwts.builder()
@@ -37,8 +46,11 @@ public class JwtUtils {
     }
 
     public String getUsernameFromJwtToken(String token){
-        return Jwts.parserBuilder().setSigningKey(key()).build()
-                .parseClaimsJws(token).getBody().getSubject();
+        return Jwts.parserBuilder()
+                .setSigningKey(key()).build()
+                .parseClaimsJws(token)
+                .getBody()
+                .getSubject();
     }
 
     public boolean validateJwtToken(String authToken){

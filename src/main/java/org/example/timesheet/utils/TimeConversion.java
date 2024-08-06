@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
+import java.util.Calendar;
 import java.util.Date;
 import java.time.format.DateTimeFormatter;
 
@@ -59,5 +60,15 @@ public class TimeConversion {
         Date date = convertLocalTimeToDate(localTime);
 
         System.out.println(date);
+    }
+
+    public static Date getStartOfDay(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        return calendar.getTime();
     }
 }

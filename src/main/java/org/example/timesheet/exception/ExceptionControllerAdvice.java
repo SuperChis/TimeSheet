@@ -32,4 +32,10 @@ public class ExceptionControllerAdvice {
     public final ResponseEntity<BaseResponse> handleRequestFailException(RequetFailException e){
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new BaseResponse(false, 400, e.getMessage()));
     }
+
+    @ExceptionHandler(value = TokenRefreshException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public final ResponseEntity<BaseResponse> handleRequestFailException(TokenRefreshException e){
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new BaseResponse(false, 403, e.getMessage()));
+    }
 }

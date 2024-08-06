@@ -78,12 +78,12 @@ public class WebSecurityConfig {
                         (requests) -> requests
                                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                                 .requestMatchers("/api/auth/**",  "/api/file/**").permitAll()
-                                .requestMatchers( "/api/user/**").hasRole("USER")
+                                .requestMatchers( "/api/user/**", "/api/timesheet/user/.*").hasRole("USER")
                                 .requestMatchers("/api/admin/**", "/api/branch/admin/.*" ,
                                         "/api/customer/admin/.*", "/api/leaveType/admin/.*",
                                         "/api/position/admin/.*",
                                         "/api/project/admin/.*","/api/project/admin/add-member",
-                                        "/api/task/admin/.*").hasRole("ADMIN")
+                                        "/api/task/admin/.*", "/api/timesheet/admin/.*").hasRole("ADMIN")
                                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
                                 .anyRequest().authenticated()
                 );

@@ -16,15 +16,15 @@ import org.example.timesheet.entity.Branch;
 import org.example.timesheet.enums.ERole;
 import org.example.timesheet.entity.Role;
 import org.example.timesheet.entity.User;
-import org.example.timesheet.enums.EUserLevel;
-import org.example.timesheet.enums.EUserType;
 import org.example.timesheet.exception.AuthenticationFailException;
 import org.example.timesheet.exception.NotFoundException;
 import org.example.timesheet.exception.RequetFailException;
+import org.example.timesheet.mailConfig.EmailService;
 import org.example.timesheet.mapper.UserMapper;
 import org.example.timesheet.repository.BranchRepository;
 import org.example.timesheet.repository.RoleRepository;
 import org.example.timesheet.repository.UserRepository;
+import org.example.timesheet.service.RefreshTokenService;
 import org.example.timesheet.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -37,6 +37,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
+import org.example.timesheet.entity.RefreshToken;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -45,13 +46,14 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
 
     @Autowired
-    UserRepository repository;
+    private UserRepository repository;
 
     @Autowired
-    RoleRepository roleRepository;
+    private RoleRepository roleRepository;
 
     @Autowired
-    BranchRepository branchRepository;
+    private BranchRepository branchRepository;
+
     @Autowired
     private AuthenticationManager authenticationManager;
 
@@ -60,6 +62,12 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private PasswordEncoder encoder;
+
+    @Autowired
+    RefreshTokenService refreshTokenService;
+
+    @Autowired
+    private EmailService emailService;
 
     public SignUpResponse signUp(SignUpRequest request, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
@@ -89,6 +97,11 @@ public class UserServiceImpl implements UserService {
         user.setRoles(roles);
         repository.save(user);
 
+        // Gửi email thông báo
+        String subject = "Registration Successful";
+        String text = "Dear " + user.getUsername() + ",\n\nYour registration is successful.\n\nBest regards,\nYour Company";
+        emailService.sendEmail(user.getEmail(), subject, text);
+
         return new SignUpResponse(true, 200);
     }
 
@@ -96,18 +109,22 @@ public class UserServiceImpl implements UserService {
         if (bindingResult.hasErrors()) {
             throw new RequetFailException(false, 400, getErrMsg(bindingResult));
         }
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         System.out.println("Authentication: " + authentication.getPrincipal());
         System.out.println(authentication);
 
         String jwt = jwtUtils.generateJwtToken(authentication);
+
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(authentication);
+
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         List<String> roles = userDetails.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
-        return new JwtResponse(jwt, roles);
+        return new JwtResponse(jwt, refreshToken.getToken(), roles);
     }
 
     @Override
